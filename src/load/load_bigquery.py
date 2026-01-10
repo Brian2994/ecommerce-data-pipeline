@@ -7,12 +7,35 @@ TRUSTED_PATH = Path("data/trusted")
 
 client = bigquery.Client(project=PROJECT_ID)
 
+SCHEMAS = {
+    "orders_items": [
+        bigquery.SchemaField("order_id", "INT64"),
+        bigquery.SchemaField("user_id", "INT64"),
+        bigquery.SchemaField("product_id", "INT64"),
+        bigquery.SchemaField("quantity", "INT64"),
+        bigquery.SchemaField("order_date", "TIMESTAMP"),
+    ],
+    "products": [
+        bigquery.SchemaField("product_id", "INT64"),
+        bigquery.SchemaField("title", "STRING"),
+        bigquery.SchemaField("category", "STRING"),
+        bigquery.SchemaField("price", "FLOAT64"),
+    ],
+    "users": [
+        bigquery.SchemaField("user_id", "INT64"),
+        bigquery.SchemaField("email", "STRING"),
+        bigquery.SchemaField("username", "STRING"),
+        bigquery.SchemaField("full_name", "STRING"),
+    ],
+}
+
 def load_parquet(table_name: str, file_path: Path):
     table_id = f"{PROJECT_ID}.{DATASET}.{table_name}"
 
     job_config = bigquery.LoadJobConfig(
         source_format=bigquery.SourceFormat.PARQUET,
-        write_disposition="WRITE_TRUNCATE" # WRITE_APPEND
+        write_disposition="WRITE_TRUNCATE", # WRITE_APPEND
+        schema=SCHEMAS[table_name]
     )
 
     with open(file_path, "rb") as f:
