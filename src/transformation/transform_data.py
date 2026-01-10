@@ -50,7 +50,12 @@ df_orders = df_carts.rename(columns={
     "userId": "user_id"
 })
 
-df_orders["order_date"] = pd.to_datetime(df_orders["date"])
+df_orders["order_date"] = (
+    pd.to_datetime(df_orders["date"], utc=True)
+    .dt.tz_convert("UTC") # garante UTC
+    .dt.tz_localize(None) # remove timezone explicitamente
+    .astype("datetime64[us]") # converte para microssegundos
+)
 
 df_orders_items = df_orders.explode("products")
 df_orders_items["product_id"] = df_orders_items["products"].apply(lambda x: x["productId"])
