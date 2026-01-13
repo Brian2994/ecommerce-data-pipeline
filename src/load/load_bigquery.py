@@ -13,7 +13,7 @@ SCHEMAS = {
         bigquery.SchemaField("user_id", "INT64"),
         bigquery.SchemaField("product_id", "INT64"),
         bigquery.SchemaField("quantity", "INT64"),
-        bigquery.SchemaField("order_date", "TIMESTAMP"),
+        bigquery.SchemaField("order_date", "DATE"),
     ],
     "products": [
         bigquery.SchemaField("product_id", "INT64"),
