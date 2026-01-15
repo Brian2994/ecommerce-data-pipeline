@@ -6,6 +6,7 @@
 -- * Otimizar para análise e dashboard
 CREATE SCHEMA IF NOT EXISTS ecommerce_analytics;
 
+-- Dimensões:
 -- Dimensão Produtos
 CREATE OR REPLACE TABLE ecommerce_analytics.dim_products AS 
 SELECT
@@ -35,3 +36,20 @@ SELECT -- Seleciona os campos que irão compor a dimensão de datas
     EXTRACT(WEEK FROM order_date) AS week, -- Extrai o número da semana do ano da data do pedido
     FORMAT_DATE('%A', order_date) AS day_name -- Retorna o nome do dia da semana (ex: Monday, Tuesday)
 FROM ecommerce_trusted.orders_items; -- Fonte dos dados: tabela de itens de pedidos
+
+-- Tabela Fato:
+-- Fato Pedidos
+CREATE OR REPLACE TABLE ecommerce_analytics.fact_orders
+PARTITION BY order_date
+AS
+SELECT
+  oi.order_id,
+  oi.user_id,
+  oi.product_id,
+  DATE(oi.order_date) AS order_date,
+  oi.quantity,
+  p.price,
+  oi.quantity * p.price AS revenue
+FROM ecommerce_trusted.orders_items AS oi
+LEFT JOIN ecommerce_trusted.products AS p
+  ON oi.product_id = p.product_id;
