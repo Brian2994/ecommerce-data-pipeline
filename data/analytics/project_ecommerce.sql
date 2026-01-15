@@ -46,10 +46,40 @@ SELECT
   oi.order_id,
   oi.user_id,
   oi.product_id,
-  DATE(oi.order_date) AS order_date,
+  oi.order_date AS order_date,
   oi.quantity,
   p.price,
   oi.quantity * p.price AS revenue
 FROM ecommerce_trusted.orders_items AS oi
 LEFT JOIN ecommerce_trusted.products AS p
   ON oi.product_id = p.product_id;
+
+-- View de Fato Pedidos
+CREATE OR REPLACE VIEW ecommerce_analytics.vw_fact_orders
+AS
+SELECT
+  oi.order_id,
+  oi.user_id,
+  oi.product_id,
+  oi.order_date AS order_date,
+  oi.quantity,
+  p.price,
+  oi.quantity * p.price AS revenue
+FROM ecommerce_trusted.orders_items AS oi
+LEFT JOIN ecommerce_trusted.products AS p
+  ON oi.product_id = p.product_id;
+
+-- View analítica de Vendas
+CREATE OR REPLACE VIEW ecommerce_analytics.vw_sales AS
+SELECT
+  f.order_date,
+  d.year,
+  d.month,
+  u.full_name,
+  p.product_name,
+  f.quantity,
+  f.revenue
+FROM ecommerce_analytics.vw_fact_orders f
+JOIN ecommerce_analytics.dim_date d ON f.order_date = d.date
+JOIN ecommerce_analytics.dim_users u ON f.user_id = u.user_id
+JOIN ecommerce_analytics.dim_products p ON f.product_id = p.product_id;
